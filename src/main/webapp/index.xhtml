@@ -21,55 +21,52 @@
                     <f:param name="i" value="1" />
                 </p:menuitem>
             </p:tabMenu>
-
-            <h:panelGrid columns="2"
-                         rendered="#{param.i == 0 or param.i == null}"
-                         style="vertical-align: top">
-                <p:panel header="Upload files">
-                    <h:panelGrid columns="2"
-                                 style="width: 500px;">
-                        <p:outputLabel for="documentsUpload"
-                                       value="Choose file with documents"/>
-                        <p:fileUpload auto="true"
-                                      id="documentsUpload"
-                                      fileUploadListener="#{indexPageBean.documentFileUploadHandler}"
-                                      update="runProcess"/>
-                        <p:outputLabel for="keywordsUpload"
-                                       value="Choose file with keywords"/>
-                        <p:fileUpload auto="true"
-                                      id="keywordsUpload"
-                                      update="runProcess"
-                                      fileUploadListener="#{indexPageBean.keywordFileUploadHandler}"/>
-                        <p:commandButton id="runProcess"
-                                         disabled="#{indexPageBean.documents == null or indexPageBean.keywords == null}"
-                                         action="#{indexPageBean.processData()}"
-                                         value="Prepare search engine"
-                                         update="tabs tables"/>
-                    </h:panelGrid>
-                </p:panel>
-                <h:panelGrid columns="1"
-                             id="tables">
-                    <p:panel header="Documents">
-                        <p:dataTable value="#{indexPageBean.documentList}"
-                                     var="document">
-                            <p:column headerText="Title">
-                                <h:outputText value="#{document.name}"/>
-                            </p:column>
-                            <p:column headerText="Content">
-                                <h:outputText value="#{document.content}"/>
-                            </p:column>
-                        </p:dataTable>
-                    </p:panel>
-                    <p:panel header="Keywords">
-                        <p:dataTable value="#{indexPageBean.keywordsList}"
-                                     var="keyword">
-                            <p:column headerText="Name">
-                                <h:outputText value="#{keyword}"/>
-                            </p:column>
-                        </p:dataTable>
-                    </p:panel>
+            <p:panel header="Upload files">
+                <h:panelGrid columns="4">
+                    <p:outputLabel for="documentsUpload"
+                                   value="Choose file with documents"/>
+                    <p:fileUpload auto="true"
+                                  id="documentsUpload"
+                                  fileUploadListener="#{indexPageBean.documentFileUploadHandler}"
+                                  update="runProcess"/>
+                    <p:outputLabel for="keywordsUpload"
+                                   value="Choose file with keywords"/>
+                    <p:fileUpload auto="true"
+                                  id="keywordsUpload"
+                                  update="runProcess"
+                                  fileUploadListener="#{indexPageBean.keywordFileUploadHandler}"/>
+                    <p:commandButton id="runProcess"
+                                     disabled="#{indexPageBean.documents == null or indexPageBean.keywords == null}"
+                                     action="#{indexPageBean.processData()}"
+                                     value="Prepare search engine"
+                                     update="tabs tables"/>
                 </h:panelGrid>
-            </h:panelGrid>
+            </p:panel>
+            <h:panelGroup id="tables">
+                <p:panel header="Documents">
+                    <p:dataTable value="#{indexPageBean.documentList}"
+                                 var="document"
+                                 paginator="true"
+                                 rows="10">
+                        <p:column headerText="Title">
+                            <h:outputText value="#{document.name}"/>
+                        </p:column>
+                        <p:column headerText="Content">
+                            <h:outputText value="#{document.content}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+                <p:panel header="Keywords">
+                    <p:dataTable value="#{indexPageBean.keywordsList}"
+                                 var="keyword"
+                                 paginator="true"
+                                 rows="10">
+                        <p:column headerText="Name">
+                            <h:outputText value="#{keyword}"/>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </h:panelGroup>
         </h:form>
     </h:body>
 </html>
