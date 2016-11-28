@@ -71,6 +71,7 @@ public class DataProcessor {
 
         //standaryzacja
         tokens = standarize(tokens);
+        tokens.stream().forEach(r -> document.addTerm(r));
 
         LOGGER.info("Standarized tokens: {}", tokens);
     }
