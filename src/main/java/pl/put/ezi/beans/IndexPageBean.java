@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 import org.primefaces.event.FileUploadEvent;
@@ -12,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.put.ezi.data.DataProcessor;
 import pl.put.ezi.model.Document;
+import pl.put.ezi.utils.DocumentComparator;
+import pl.put.ezi.utils.KeywordsHelper;
 
 /**
  *
@@ -26,7 +32,10 @@ public class IndexPageBean implements Serializable {
     private InputStream documents;
     private InputStream keywords;
     private List<Document> documentList = new ArrayList<>();
-    private List<String> keywordsList = new ArrayList<>();
+    private Map<String, Double> keywordsMap = new HashMap<>();
+    private String searchTerm;
+    private List<Document> sortedDocuments = new ArrayList<>();
+    private List<KeywordsHelper> keywordsHelpers = new ArrayList<>();
 
     /**
      * Creates a new instance of IndexPageBean
@@ -58,12 +67,32 @@ public class IndexPageBean implements Serializable {
         this.documentList = documentList;
     }
 
-    public List<String> getKeywordsList() {
-        return keywordsList;
+    public Map<String, Double> getKeywordsMap() {
+        return keywordsMap;
     }
 
-    public void setKeywordsList(List<String> keywordsList) {
-        this.keywordsList = keywordsList;
+    public void setKeywordsMap(Map<String, Double> keywordsMap) {
+        this.keywordsMap = keywordsMap;
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
+    }
+
+    public List<Document> getSortedDocuments() {
+        return sortedDocuments;
+    }
+
+    public void setSortedDocuments(List<Document> sortedDocuments) {
+        this.sortedDocuments = sortedDocuments;
+    }
+
+    public List<KeywordsHelper> getKeywordsHelpers() {
+        return KeywordsHelper.getInstances(keywordsMap);
     }
 
     /**
@@ -92,8 +121,25 @@ public class IndexPageBean implements Serializable {
     public void processData() throws IOException {
         LOGGER.info("Process data");
         documentList = DataProcessor.processDocumentsFile(documents);
-        keywordsList = DataProcessor.processKeywordsFile(keywords);
+        keywordsMap = DataProcessor.processKeywordsFile(keywords);
 
-        DataProcessor.processDocument(documentList.get(0));
+        for (Document document : documentList) {
+            DataProcessor.processDocument(document);
+        }
+
+        keywordsMap = DataProcessor.processKeywords(keywordsMap.keySet());
+
+        DataProcessor.countKeywords(documentList, keywordsMap);
+    }
+
+    public void searchAction() {
+        sortedDocuments.clear();
+        Document searchDocument = new Document(null, this.searchTerm);
+        DataProcessor.processDocument(searchDocument);
+        DataProcessor.countKeywordsInSearchDocument(searchDocument, keywordsMap);
+        DataProcessor.searchDocuments(documentList, searchDocument);
+        sortedDocuments.addAll(documentList.stream().filter(r -> r.getSimilarity() > 0).collect(Collectors.toList()));
+        Collections.sort(sortedDocuments, new DocumentComparator());
+
     }
 }

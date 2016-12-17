@@ -19,8 +19,7 @@
                                     <p:fileUpload auto="true"
                                                   id="documentsUpload"
                                                   fileUploadListener="#{indexPageBean.documentFileUploadHandler}"
-                                                  update="runProcess"
-                                                  mode="simple"/>
+                                                  update="runProcess"/>
                                     <p:outputLabel for="keywordsUpload"
                                                    value="Choose file with keywords"/>
                                     <p:fileUpload auto="true"
@@ -42,10 +41,12 @@
                                                  var="document"
                                                  paginator="true"
                                                  rows="10">
-                                        <p:column headerText="Title">
+                                        <p:column headerText="Title"
+                                                  sortBy="#{document.name}">
                                             <h:outputText value="#{document.name}"/>
                                         </p:column>
-                                        <p:column headerText="Content">
+                                        <p:column headerText="Content"
+                                                  sortBy="#{document.content}">
                                             <h:outputText value="#{document.content}"/>
                                         </p:column>
                                         <p:column style="width: 50px;">
@@ -57,12 +58,17 @@
                                     </p:dataTable>
                                 </p:panel>
                                 <p:panel header="Keywords">
-                                    <p:dataTable value="#{indexPageBean.keywordsList}"
+                                    <p:dataTable value="#{indexPageBean.keywordsHelpers}"
                                                  var="keyword"
                                                  paginator="true"
                                                  rows="10">
-                                        <p:column headerText="Name">
-                                            <h:outputText value="#{keyword}"/>
+                                        <p:column headerText="Name"
+                                                  sortBy="${keyword.name}">
+                                            <h:outputText value="#{keyword.name}"/>
+                                        </p:column>
+                                        <p:column headerText="IDF"
+                                                  sortBy="#{keyword.idf}">
+                                            <h:outputText value="#{keyword.idf}"/>
                                         </p:column>
                                     </p:dataTable>
                                 </p:panel>
@@ -72,14 +78,57 @@
                 </h:form>
             </p:tab>
             <p:tab title="Search data"
-                   disabled="#{indexPageBean.documentList.size() == 0 or indexPageBean.keywordsList.size() == 0}">
+                   disabled="#{indexPageBean.documentList.size() == 0 or indexPageBean.keywordsMap.size() == 0}">
+                <h:form>
+                    <div class="ui-g">
+                        <div class="ui-g-1">
+                            <p:outputLabel for="searchText"
+                                           value="Search term"/>
+                        </div>
+                        <div class="ui-g-11">
+                            <p:inputText value="#{indexPageBean.searchTerm}"
+                                         id="searchText"
+                                         style="width: 100%"/>
+                        </div>
+                        <div class="ui-g-4">
+                            <p:commandButton action="#{indexPageBean.searchAction()}"
+                                             value="Search"
+                                             update="searchTable"/>
+                        </div>
+                        <div class="ui-g-12">
+                            <p:panel header="Search results">
+                                <p:dataTable value="#{indexPageBean.sortedDocuments}"
+                                             var="document"
+                                             paginator="true"
+                                             rows="10"
+                                             id="searchTable">
+                                    <p:column headerText="Title"
+                                              sortBy="#{document.name}">
+                                        <h:outputText value="#{document.name}"/>
+                                    </p:column>
+                                    <p:column headerText="Similarity"
+                                              sortBy="#{document.similarity}">
+                                        <h:outputText value="#{document.similarity}"/>
+                                    </p:column>
+                                    <p:column style="width: 50px;">
+                                        <p:commandButton icon="fa fa-file-text"
+                                                         action="#{documentBean.setDocument(document)}"
+                                                         update="documentDialog"
+                                                         oncomplete="PF('documentDialog').show();"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </p:panel>
+                        </div>
+                    </div>
+                </h:form>
             </p:tab>
         </p:tabView>
 
         <p:dialog id="documentDialog"
                   widgetVar="documentDialog"
                   modal="true"
-                  header="Document">
+                  header="Document"
+                  minWidth="350">
             <h:panelGrid columns="2">
                 <p:outputLabel value="Name"/>
                 <p:inputTextarea readonly="true"
