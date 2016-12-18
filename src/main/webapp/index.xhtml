@@ -19,13 +19,15 @@
                                     <p:fileUpload auto="true"
                                                   id="documentsUpload"
                                                   fileUploadListener="#{indexPageBean.documentFileUploadHandler}"
-                                                  update="runProcess"/>
+                                                  update="runProcess"
+                                                  accept="*/(\.|\/)(txt)$/"/>
                                     <p:outputLabel for="keywordsUpload"
                                                    value="Choose file with keywords"/>
                                     <p:fileUpload auto="true"
                                                   id="keywordsUpload"
                                                   update="runProcess"
-                                                  fileUploadListener="#{indexPageBean.keywordFileUploadHandler}"/>
+                                                  fileUploadListener="#{indexPageBean.keywordFileUploadHandler}"
+                                                  accept="*/(\.|\/)(txt)$/"/>
                                     <p:commandButton id="runProcess"
                                                      disabled="#{indexPageBean.documents == null or indexPageBean.keywords == null}"
                                                      action="#{indexPageBean.processData()}"
@@ -109,6 +111,9 @@
                                     <p:column headerText="Similarity"
                                               sortBy="#{document.similarity}">
                                         <h:outputText value="#{document.similarity}"/>
+                                    </p:column>
+                                    <p:column headerText="TF-IDF">
+                                        <h:outputText value="#{documentBean.getTfidf(document)}"/>
                                     </p:column>
                                     <p:column style="width: 50px;">
                                         <p:commandButton icon="fa fa-file-text"

@@ -23,4 +23,10 @@ public class DocumentBean implements Serializable {
         this.document = document;
     }
 
+    public String getTfidf(Document document) {
+
+        return document.getKeywords().toString();
+
+    }
+
 }
