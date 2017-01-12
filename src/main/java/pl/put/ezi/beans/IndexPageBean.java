@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.enterprise.context.SessionScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.put.ezi.data.DataProcessor;
+import pl.put.ezi.data.WordnetProcessor;
 import pl.put.ezi.model.Document;
 import pl.put.ezi.utils.DocumentComparator;
 import pl.put.ezi.utils.KeywordsHelper;
@@ -24,7 +25,7 @@ import pl.put.ezi.utils.KeywordsHelper;
  * @author Michal
  */
 @Named(value = "indexPageBean")
-@SessionScoped
+@ViewScoped
 public class IndexPageBean implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexPageBean.class);
@@ -34,6 +35,7 @@ public class IndexPageBean implements Serializable {
     private List<Document> documentList = new ArrayList<>();
     private Map<String, Double> keywordsMap = new HashMap<>();
     private String searchTerm;
+    private List<String> expandedQueries = new ArrayList<>();
     private List<Document> sortedDocuments = new ArrayList<>();
     private List<KeywordsHelper> keywordsHelpers = new ArrayList<>();
 
@@ -95,6 +97,14 @@ public class IndexPageBean implements Serializable {
         return KeywordsHelper.getInstances(keywordsMap);
     }
 
+    public List<String> getExpandedQueries() {
+        return expandedQueries;
+    }
+
+    public void setExpandedQueries(List<String> expandedQueries) {
+        this.expandedQueries = expandedQueries;
+    }
+
     /**
      * Handler dla akcji wczytania dokumentów.
      *
@@ -132,7 +142,7 @@ public class IndexPageBean implements Serializable {
         DataProcessor.countKeywords(documentList, keywordsMap);
     }
 
-    public void searchAction() {
+    public void searchAction() throws IOException {
         sortedDocuments.clear();
         Document searchDocument = new Document(null, this.searchTerm);
         DataProcessor.processDocument(searchDocument);
@@ -140,6 +150,26 @@ public class IndexPageBean implements Serializable {
         DataProcessor.searchDocuments(documentList, searchDocument);
         sortedDocuments.addAll(documentList.stream().filter(r -> r.getSimilarity() > 0).collect(Collectors.toList()));
         Collections.sort(sortedDocuments, new DocumentComparator());
-
+        
+        expandedQueries = WordnetProcessor.expandQuery(searchTerm);
     }
+
+    public void initWordnet() {
+        try {
+//            IIndexWord indexWord;
+            WordnetProcessor processor = new WordnetProcessor();
+            processor.expandQuery("palm");
+//            Dictionary dictionary = processor.getDictionary();
+//            LOGGER.info("isOpen()={}", dictionary.isOpen());
+//            dictionary.open();
+//            LOGGER.info("isOpen()={}", dictionary.isOpen());
+//            indexWord = dictionary.getIndexWord("machine", POS.VERB);
+//            LOGGER.info(indexWord.getID().toString());
+        } catch (IOException ex) {
+            LOGGER.error("error lul", ex);
+        } catch (Throwable t) {
+            LOGGER.error("error lul", t);
+        }
+    }
+
 }

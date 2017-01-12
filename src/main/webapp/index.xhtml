@@ -2,7 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
         <title>EZI</title>
     </h:head>
@@ -92,10 +94,27 @@
                                          id="searchText"
                                          style="width: 100%"/>
                         </div>
+                        <div class="ui-g-1"></div>
+                        <div class="ui-g-11">
+                            <h:panelGroup id="queries">
+                                <h:outputText value="Try also:"
+                                              style="margin-right: 10px;"/>
+                                <c:forEach items="#{indexPageBean.expandedQueries}"
+                                           var="query">
+                                    <p:commandLink action="#{indexPageBean.searchAction()}"
+                                                   value="#{query}"
+                                                   update="searchTable queries searchText"
+                                                   style="margin-right: 10px;">
+                                        <f:setPropertyActionListener target="#{indexPageBean.searchTerm}"
+                                                                     value="#{query}"/>
+                                    </p:commandLink>
+                                </c:forEach>
+                            </h:panelGroup>
+                        </div>
                         <div class="ui-g-4">
                             <p:commandButton action="#{indexPageBean.searchAction()}"
                                              value="Search"
-                                             update="searchTable"/>
+                                             update="searchTable queries"/>
                         </div>
                         <div class="ui-g-12">
                             <p:panel header="Search results">
